@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Telemetry Dashboard</title>
+</head>
+<body>
+    <h1>Live Telemetry</h1>
+    <div>
+        <strong>Altitude:</strong> <span id="altitude">--</span> meters
+    </div>
+    <div>
+        <strong>Speed:</strong> <span id="speed">--</span> m/s
+    </div>
+    <div>
+        <strong>Fuel:</strong> <span id="fuel">--</span> units
+    </div>
+     <div>
+        <strong>Apoapsis:</strong> <span id="apoapsis">--</span> meters
+    </div>
+    <div>
+        <strong>Periapsis:</strong> <span id="periapsis">--</span> meters
+    </div>
+    <div id="connection-status" style="margin-top: 20px; font-weight: bold;">
+        Status: Disconnected
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

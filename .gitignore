@@ -1,0 +1,43 @@
+# Log files
+*.log
+mission_log.txt
+
+# Environment files
+.env
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python artifacts
+__pycache__/
+*.pyc
+dist/
+build/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+next-steps.md
+orion_gnc.egg-info/
+.coverage
+
+logs/
+Project-Analyzer/
+.npm-cache/
+.env.production
+.roo/mcp.json
+.venv/
+# Development documentation (keep local only)
+progress_report.md
+next-steps.md
+
+# AI assistant files
+.claude/
+CLAUDE.md

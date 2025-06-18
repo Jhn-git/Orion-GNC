@@ -1,0 +1,179 @@
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+  gnc_flight_control:
+    build:
+      context: ./gnc-flight-control
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8765:8765"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - REDIS_HOST=redis
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "python", "/app/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  mission_control_ui:
+    build:
+      context: ./mission-control-ui
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mission_sequencer:
+        condition: service_healthy
+      telemetry_dashboard:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - REDIS_HOST=redis
+      - GUNICORN_WORKERS=2
+      - GUNICORN_THREADS=4
+      - MISSION_SEQUENCER_URL=http://mission_sequencer:5001
+      - TELEMETRY_DASHBOARD_URL=http://telemetry_dashboard:5001
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 5000)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  telemetry_dashboard:
+    build:
+      context: ./telemetry-dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5001"
+    depends_on:
+      redis:
+        condition: service_healthy
+      gnc_flight_control:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - REDIS_HOST=redis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5001/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+  
+  mission_sequencer:
+    build:
+      context: ./mission-sequencer
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./docs:/app/docs
+    environment:
+      - REDIS_HOST=redis
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s = socket.socket(); s.connect(('localhost', 5001))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  mission_sequencer_worker:
+    build:
+      context: ./mission-sequencer
+      dockerfile: Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./docs:/app/docs
+    environment:
+      - REDIS_HOST=redis
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A worker worker --loglevel=info
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A worker inspect ping -d celery@$${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+volumes:
+  redis_data:

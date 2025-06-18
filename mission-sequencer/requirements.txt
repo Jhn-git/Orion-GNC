@@ -1,0 +1,5 @@
+Flask
+redis==4.3.4
+celery==5.2.7
+jsonschema==4.6.0
+gunicorn==20.1.0

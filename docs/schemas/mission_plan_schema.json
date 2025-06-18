@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orion Mission Plan",
+  "type": "object",
+  "required": ["mission_id", "flight_plan"],
+  "properties": {
+    "mission_id": {
+      "type": "string",
+      "description": "Unique identifier for the mission.",
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    },
+    "flight_plan": {
+      "type": "array",
+      "description": "Sequence of commands defining the mission.",
+      "items": {
+        "type": "object",
+        "required": ["command", "parameters"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "The command to be executed."
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Parameters for the command."
+          },
+          "delay_ms": {
+            "type": "integer",
+            "description": "Delay in milliseconds before executing the next command.",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

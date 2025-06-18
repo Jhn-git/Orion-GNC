@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; border: 1px solid #ccc; padding: 15px; border-radius: 5px; }
+        .mission-builder { background-color: #f9f9f9; }
+        .command-row { margin-bottom: 10px; padding: 10px; background-color: #fff; border: 1px solid #ddd; border-radius: 3px; }
+        .mission-status { background-color: #e8f5e8; }
+        .legacy-commands { background-color: #fff8dc; }
+        .mission-analysis { background-color: #e6f7ff; }
+        .button { background-color: #007bff; color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 3px; margin: 2px; }
+        .button:hover { background-color: #0056b3; }
+        .button.danger { background-color: #dc3545; }
+        .button.danger:hover { background-color: #c82333; }
+        .status-display { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .status-queued { background-color: #fff3cd; }
+        .status-progress { background-color: #d1ecf1; }
+        .status-completed { background-color: #d4edda; }
+        .status-failed { background-color: #f8d7da; }
+        input, select, textarea { margin: 2px; padding: 5px; }
+        .mission-list { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Orion GNC Mission Control</h1>
+    
+    <!-- Mission Plan Builder -->
+    <div class="section mission-builder">
+        <h2>Mission Plan Builder</h2>
+        <div>
+            <label>Mission Name: </label>
+            <input type="text" id="missionName" placeholder="e.g., Orbital Insertion LV-01" style="width: 300px;">
+        </div>
+        <div style="margin-top: 10px;">
+            <h3>Command Sequence</h3>
+            <div id="commandSequence"></div>
+            <div style="margin-top: 10px;">
+                <select id="commandType">
+                    <option value="SET_THROTTLE">SET_THROTTLE</option>
+                    <option value="SET_HEADING">SET_HEADING</option>
+                    <option value="SET_PITCH">SET_PITCH</option>
+                    <option value="STAGE">STAGE</option>
+                    <option value="WAIT">WAIT</option>
+                    <option value="WAIT_UNTIL_APOAPSIS">WAIT_UNTIL_APOAPSIS</option>
+                    <option value="ACTIVATE_RCS">ACTIVATE_RCS</option>
+                    <option value="DEACTIVATE_RCS">DEACTIVATE_RCS</option>
+                </select>
+                <input type="number" id="commandValue" placeholder="Value (if needed)" step="0.1">
+                <button class="button" id="addCommand">Add Command</button>
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button class="button" id="submitMission">🚀 Submit Mission Plan</button>
+            <button class="button" id="clearMission">Clear All</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <h4>Sample Missions</h4>
+            <button class="button" onclick="loadSampleMission('orbital_insertion')">Load Orbital Insertion</button>
+            <button class="button" onclick="loadSampleMission('simple_ascent')">Load Simple Ascent</button>
+        </div>
+    </div>
+
+    <!-- Mission Status Monitor -->
+    <div class="section mission-status">
+        <h2>Mission Status Monitor</h2>
+        <div id="activeMissions">
+            <p>No active missions</p>
+        </div>
+        <div style="margin-top: 10px;">
+            <button class="button" id="refreshStatus">Refresh Status</button>
+        </div>
+    </div>
+
+    <!-- Legacy Single Command Interface -->
+    <div class="section legacy-commands">
+        <h2>Legacy Command Interface</h2>
+        <input type="text" id="commandInput" placeholder="Enter single command">
+        <button class="button" id="sendCommand">Send Command</button>
+        <h3>Queued Commands</h3>
+        <ul id="commandQueue"></ul>
+    </div>
+
+    <!-- Mission Analysis Section -->
+    <div class="section mission-analysis">
+        <h2>Mission Analysis</h2>
+        <div>
+            <label for="missionLogSelector">Select Mission Log:</label>
+            <select id="missionLogSelector"></select>
+            <button class="button" id="refreshLogsBtn">Refresh Logs</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <textarea id="analysisQuestion" placeholder="Ask a question about the selected mission log..." style="width: 100%; height: 60px;"></textarea>
+        </div>
+        <div style="margin-top: 10px;">
+            <button class="button" id="analyzeMissionBtn">Analyze Mission</button>
+        </div>
+        <div id="analysisResult" style="margin-top: 15px; background-color: #f0f0f0; padding: 10px; border-radius: 3px; min-height: 50px;">
+            <p>Analysis results will be displayed here.</p>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
